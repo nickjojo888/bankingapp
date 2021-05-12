@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:sf="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking | Contact</title>
+
+    <link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+	integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	crossorigin="anonymous"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+	integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	crossorigin="anonymous"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+	integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+	crossorigin="anonymous"></script>
+<!-- Custom styles for this template-->
+
+<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+<script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+<script
+	src="https://www.amcharts.com/lib/3/plugins/dataloader/dataloader.min.js"></script>
+<script src="https://www.amcharts.com/lib/3/maps/js/worldLow.js"></script>
+</head> 
+
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+        <a class="navbar-brand" href="/banking/">QuickInvest</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="/banking/">Home
+                        <span class="sr-only">(current)</span>
+                </a></li>
+                <li class="nav-item"><a class="nav-link"
+                    th:href="@{'/banking/deposit'}">Deposit</a></li>
+                <li class="nav-item"><a class="nav-link"
+                    th:href="@{'/banking/withdraw'}">Withdraw</a></li>
+                <li class="nav-item"><a class="nav-link"
+                    th:href="@{'/banking/stocks'}">Stocks</a></li>
+                <li class="nav-item active"><a class="nav-link" href="/contact-us">Contact
+                        Us</a></li>
+            </ul>
+    
+            <ul class="navbar-nav ">
+                <!-- PROFILE DROPDOWN - scrolling off the page to the right -->
+                <li class="nav-item dropdown"><a th:text="${username}" href="#"
+                    class="nav-link dropdown-toggle" id="navDropDownLink"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Profile </a>
+                    <div class="dropdown-menu" aria-labelledby="navDropDownLink">
+                        <a class="dropdown-item" th:href="@{/user/settings}">Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" th:href="@{/logout}">Logout</a>
+                    </div></li>
+    
+            </ul>
+        </div>
+    </nav>
+    	<br />
+    	<br />
+    
+
+    <table width="100%" border="0" align="center" cellpadding="10"
+    cellspacing="2" >
+
+    <thead>
+        <tr>
+            <th class="text-center" colspan="5" bgcolor="#333333"
+                scope="col"><font color="#FFFFFF">Contact Us</font></th>
+        </tr>
+    </thead>
+</table>
+<div class="container">
+		<div class="card card-login mx-auto mt-5">
+			<div class="card-header text-center" style="background: #343a40;"><span style="color:white;"><b>Contact Form</b></span></div>
+			<div class="card-body">
+				<form method="post" th:object="${message}" th:action="@{/banking/contact-us/}" id="contactForm">
+
+					<div class="form-group">
+						<div class="form-label-group">
+							<label> Email: </label>
+							<input type="text" name="email" th:field="*{email}"
+								maxlength="50" data-length="10" required="required"
+								class="form-control" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="form-label-group">
+							<label> Title: </label>
+							<input type="text" name="title" th:field="*{title}"
+								maxlength="50" data-length="10" required="required"
+								class="form-control" />
+ 						</div>
+					</div>
+				   <div class="form-group">
+						<div class="form-label-group">
+							<label style="display: block"> Message: </label>
+							<textarea class="form-control" style="height: 200px;"  th:field="*{message}" form="contactForm"></textarea>
+ 						<!-- th:field="*{message}" -->
+ 						</div>
+					</div>
+
+					<input type="submit" class="btn btn-primary"/> 
+					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+				</form>
+				<h3 style="color: #343a40;" th:text="${emailSent}"></h3>
+	
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+<title>Reset | NF</title>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin.css" rel="stylesheet">
+
+</head>
+<body>
+  <div class="card-body">
+        <form action="#" th:action="@{/reset}" method="post" th:object="${user}">
+            <div class="form-row">
+              <div class="col-md-6">
+                <div class="form-label-group">
+                  <label for="inputPassword">Password</label>
+                  <input th:field="*{password}" type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required="required">
+                </div>
+              </div>
+              <!-- FIX CONFIRM PASS! -->
+              <div class="col-md-6">
+                <div class="form-label-group">
+                  <label for="confirmPassword">Confirm password</label>
+                  <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm password" required="required">
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" name="register">Reset</button>
+        </form>
+</body>
+</html>

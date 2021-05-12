@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:th="http://www.thymeleaf.org" 
+    xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+
+<head>
+<title>Login | NF</title>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+<!-- Custom styles for this template-->
+<link rel="stylesheet" th:href="@{/static/css/sb-admin.css}">
+
+
+</head>
+
+<body class="bg-dark">
+
+	<div class="container">
+		<div class="card card-login mx-auto mt-5">
+			<div class="card-header">Login</div>
+			<div class="card-body">
+				<form method="post" th:action="@{/login}">
+
+					<div class="form-group">
+						<div class="form-label-group">
+							<label> Username: </label>
+							<input type="text" name="username"
+								maxlength="20" data-length="10" required="required"
+								class="form-control" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="form-label-group">
+							<label> Password: </label>
+							<input type="password" name="password"
+								maxlength="20" data-length="10" required="required"
+								class="form-control" />
+ 						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="checkbox">
+							<label> <input type="checkbox" value="remember-me">
+								Remember Password
+							</label>
+						</div>
+					</div>
+
+
+					<input type="submit" class="btn btn-primary"/> 
+					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+				</form>
+
+				<div class="text-center">
+					<a class="d-block small mt-3" href="register">Register an
+						Account</a> 
+						<a class="d-block small" href="forgot-password">Forgot
+						Password?</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

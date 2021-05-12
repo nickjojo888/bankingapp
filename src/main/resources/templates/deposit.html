@@ -1,0 +1,126 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+
+<head>
+<title>Banking | NF</title>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+	
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<!-- Custom styles for this template-->
+</head>
+
+<nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+		<a class="navbar-brand" href="/banking/">QuickInvest</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarSupportedContent"
+			aria-controls="navbarSupportedContent" aria-expanded="false"
+			aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item"><a class="nav-link" href="/banking/">Home
+						<span class="sr-only">(current)</span>
+				</a></li>
+				<li class="nav-item active"><a class="nav-link"
+					th:href="@{'/banking/deposit'}">Deposit</a></li>
+					<li class="nav-item"><a class="nav-link"
+					th:href="@{'/banking/withdraw'}">Withdraw</a></li>
+							<li class="nav-item"><a class="nav-link"
+				th:href="@{'/banking/stocks'}">Stocks</a></li>
+				<li class="nav-item"><a class="nav-link" th:href="@{'/banking/contact-us'}">Contact
+						Us</a></li>
+				</ul>	
+				
+				 <ul class="navbar-nav ">
+                <!-- PROFILE DROPDOWN - scrolling off the page to the right -->
+                <li class="nav-item dropdown">
+                    <a th:text="${username}" href="#" class="nav-link dropdown-toggle" id="navDropDownLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Profile
+            </a>
+                    <div class="dropdown-menu" aria-labelledby="navDropDownLink">
+                        <a class="dropdown-item" th:href="@{/user/settings}">Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" th:href="@{/logout}">Logout</a>
+                    </div>
+                </li>
+			
+			</ul>
+
+		</div>
+	</nav>
+<body>
+<br>
+<div>
+	<form id="form1" name="form1" method="post" th:action="@{/banking/deposit}" th:object="${deposit}">
+	  <table width="100%" border="0" align="center" cellpadding="10" cellspacing="2">
+        <tr>
+          <th class="text-center" colspan="5" bgcolor="#333333" scope="col"><font color="#FFFFFF">Deposit Money To Account</font></th>
+        </tr>
+        <tr>
+          <td width="45%">&nbsp;</td>
+          <td width="0%">&nbsp;</td>
+          <td width="100%">&nbsp;</td>
+        </tr>
+
+          <td><div align="right">Select Account</div></td>
+          <td>:</td>
+    <td>
+
+        <ul>
+        <br>
+        <div style="margin-right: 50px;">
+            <select th:field="${deposit.accountNumber}">
+                <option th:each="accountNumber : ${accountNumbers}" th:value="${accountNumber}" th:text="${accountNumber}"></option>
+            </select>
+  </div>
+        </ul>
+           
+    </td>
+        <tr>
+          <td><div align="right">Deposit Amount</div></td>
+          <td>:</td>
+          <td>
+                    <div style="margin-left:40px;">
+          <input th:field="*{amount}" type="text" id="inputAmount" name="amount"  placeholder="0.0" required="required">
+          </div>
+          </td>
+        
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td><label>
+            <input name="Submit" type="submit"  value="Deposit" />
+          </label></td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td colspan="5" bgcolor="#333333">&nbsp;</td>
+          </tr>
+      </table>
+      </form>
+	</td>
+  </tr>
+</div>
+  </body>
+  
+  
+  </html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+
+<head>
+<title>QuickInvest</title>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+	integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+	crossorigin="anonymous"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+	integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	crossorigin="anonymous"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+	integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+	crossorigin="anonymous"></script>
+
+<link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+
+<nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+	<a class="navbar-brand" href="/banking/">QuickInvest</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse"
+		data-target="#navbarSupportedContent"
+		aria-controls="navbarSupportedContent" aria-expanded="false"
+		aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+
+	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav mr-auto">
+			<li class="nav-item active"><a class="nav-link" href="/banking/">Home
+					<span class="sr-only">(current)</span>
+			</a></li>
+			<li class="nav-item"><a class="nav-link"
+				th:href="@{'/banking/deposit'}">Deposit</a></li>
+			<li class="nav-item"><a class="nav-link"
+				th:href="@{'/banking/withdraw'}">Withdraw</a></li>
+			<li class="nav-item"><a class="nav-link"
+				th:href="@{'/banking/stocks'}">Stocks</a></li>
+			<li class="nav-item"><a class="nav-link"
+				th:href="@{'/banking/contact-us'}">Contact Us</a></li>
+
+			<div sec:authorize="hasRole('ROLE_ADMIN')">
+				<li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>
+			</div>
+		</ul>
+
+		<ul class="navbar-nav ">
+
+			<!-- PROFILE DROPDOWN - scrolling off the page to the right -->
+			<li class="nav-item dropdown"><a th:text="${username}" href="#"
+				class="nav-link dropdown-toggle" id="navDropDownLink"
+				data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					Profile </a>
+
+
+				<div class="dropdown-menu" aria-labelledby="navDropDownLink">
+					<a class="dropdown-item" th:href="@{/user/history}">History</a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item" th:href="@{/logout}">Logout</a>
+				</div></li>
+
+		</ul>
+
+	</div>
+</nav>
+
+<body>
+
+	<br />
+	<br />
+	<table width="100%" border="0" align="center" cellpadding="10"
+		cellspacing="2">
+		<tr>
+			<th class="text-center" colspan="3" bgcolor="#333333" scope="col"><font
+				color="#FFFFFF">User Account Balance</font></th>
+		</tr>
+		<tr>
+			<td><div align="right">
+					<strong> Name </strong>
+				</div></td>
+			<td><div align="right">
+					<strong>:</strong>
+				</div></td>
+			<td th:text="${userFirstName}  + ' ' + ${userLastName}"></td>
+		</tr>
+		<tr>
+			<td><div align="right">
+					<strong> Account Number</strong>
+				</div></td>
+			<td><div align="right">
+					<strong>:</strong>
+				</div></td>
+			<td th:text=${userAccountNumber}>&nbsp;</td>
+		</tr>
+		<tr>
+			<td><div align="right">
+					<strong>Cash & Cash Equivalents</strong>
+				</div></td>
+			<td><div align="right">
+					<strong>:</strong>
+				</div></td>
+			<td th:text="'$' + ${userBalance}">&nbsp;<font color="#FF0000">
+			</font></td>
+		</tr>
+		<tr>
+			<td><div align="right">
+					<strong>Total Portfolio Value </strong>
+				</div></td>
+			<td><div align="right">
+					<strong>:</strong>
+				</div></td>
+			<td th:text="'$' + ${totalValue}">&nbsp;<font color="#FF0000">
+			</font></td>
+		</tr>
+		<tr>
+			<td><div align="right">
+					<strong>Today's Change</strong>
+				</div></td>
+			<td><div align="right">
+					<strong>:</strong>
+				</div></td>
+			<!-- if statement for color, negative is red, positive is green -->
+			<td th:class="${todaysChange > 0 ? 'text-success' : 'text-danger'}"
+				th:text="'$' + ${todaysChange} + ' / ' + ${todaysChangePercent} + '%'"></td>
+		</tr>
+		<tr>
+			<td width="48%">&nbsp;</td>
+			<td width="2%">&nbsp;</td>
+			<td width="50%">&nbsp;</td>
+		</tr>
+	</table>
+	<br>
+
+	<table id="dataTable" class="table table-responsive-md table-bordered"
+		cellspacing="2" width="100%">
+		<thead style="margin-bottom: 20px;">
+			<tr>
+
+				<th class="text-center" colspan="10" bgcolor="#333333"><font
+					color="#FFFFFF">User Stock Holdings</font></th>
+
+			</tr>
+			<tr height="20px"></tr>
+			<tr class="text-center thead-dark">
+				<th>Stock Code</th>
+				<th>Quantity</th>
+				<th>Avg Purchase Price</th>
+				<th>Current Value</th>
+			</tr>
+		</thead>
+		<tbody>
+			<br>
+
+			<tr class="text-center" th:each="security : ${securities}">
+				<td th:text="${security.getStockCode()}"></td>
+				<td th:text="${security.getQuantity()}"></td>
+				<td th:text="${security.getAveragePrice()}"></td>
+				<td th:text="${security.getAmount()}"></td>
+				<!--<td th:if="${stock.getDividend().getAnnualYield() != null}"
+					th:text="${stock.getDividend().getAnnualYield() + '%'}">0.00%</td> -->
+			</tr>
+
+			<tr>
+				<td width="15%">&nbsp;</td>
+				<td width="10%">&nbsp;</td>
+				<td width="10%">&nbsp;</td>
+				<td width="10%">&nbsp;</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
