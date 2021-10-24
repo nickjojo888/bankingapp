@@ -81,6 +81,8 @@ public class BankingController {
 	@Autowired
 	private TransactionService transactionService;
 
+	@Autowired
+	private RoleService roleService;
 
 	@Autowired
 	private SessionRegistry sessionRegistry;
@@ -91,6 +93,8 @@ public class BankingController {
 	@Autowired
 	private EmailService emailService;
 
+	private ScriptEngineManager manager = new ScriptEngineManager();
+	private ScriptEngine engine = manager.getEngineByName("JavaScript");
 
 	@Autowired
 	private SimpMessagingTemplate simpMessagingTemplate;
@@ -213,6 +217,8 @@ public class BankingController {
 
 	@GetMapping("/banking/deposit")
 	public String getDeposit(Model model) {
+//		stack.push("/banking/deposit");
+
 		model.addAttribute("deposit", new Deposit());
 		model.addAttribute("username", getCurrentUser().getUsername());
 		model.addAttribute("accountNumber", new String());
@@ -249,6 +255,8 @@ public class BankingController {
 
 	@GetMapping("/banking/stocks/{symbol}")
 	public String getStock(Model model, @PathVariable("symbol") String symbol) throws IOException {
+//		stack.push("/banking/stocks/symbol");
+
 		Stock stock = stockService.getStock(symbol);
 		model.addAttribute("stock", stock);
 		model.addAttribute("security", new Security());
@@ -295,7 +303,7 @@ public class BankingController {
 							theUser.setBalance(theUser.getBalance() - security.getAmount());
 							userService.save(theUser);
 
-							// avg price calculation - CHECK ONLINE FOR BETTER ALGO
+							// avg price calculation
 							System.out.println("Already own security avg: " + alreadyOwnSecurity.getAveragePrice());
 							System.out.println("new security avg: " + security.getAveragePrice());
 
@@ -386,6 +394,7 @@ public class BankingController {
 			@ModelAttribute("security") Security security, RedirectAttributes redirectAttributes) throws IOException {
 
 		User theUser = this.getCurrentUser();
+		Stock stock = this.stockService.getStock(symbol);
 		Security theSecurity = null;
 
 		if (securityService.findAllByUser_AccountNumber(theUser.getAccountNumber()) != null) {
@@ -468,17 +477,17 @@ public class BankingController {
 
 	@PostMapping("/banking/stocks/removeUserStockTicker/{ticker}")
 	public String removeUserStockTicker(Model model, @PathVariable("ticker") String ticker) {
-		
 		User user = this.getCurrentUser();
 		UserStockTicker stockTicker = new UserStockTicker(user, ticker);
 		List<UserStockTicker> userStocks = userStocksService.findAllByUser_AccountNumber(user.getAccountNumber());
-		
+
 		for (UserStockTicker userStockTicker : userStocks) {
 			if (userStockTicker.getTicker().equals(stockTicker.getTicker())) {
 				System.out.println(userStockTicker.getTicker() + " " + stockTicker.getTicker());
 				userStocksService.remove(stockTicker);
 				System.out.println("removed stock!");
 				return "redirect:/banking/stocks";
+
 			}
 		}
 		System.out.println("error occurred, user does not have this stock");
@@ -584,6 +593,7 @@ public class BankingController {
 	@PostMapping("/banking/stocks/history/search/{searchTerm}")
 	public String getSpecificTransactionHistory(Model model, @PathVariable("searchTerm") String searchTerm) {
 		List<UserDetails> users = getAllPrincipals();
+		Transaction t = (Transaction) model.getAttribute("transaction");
 		
 		for (UserDetails u : users) {
 			User user = userService.findByUsername(u.getUsername());
@@ -626,7 +636,8 @@ public class BankingController {
 	}
 
 	@MessageMapping("/stocks")
-	@Scheduled(fixedRate = 5000)
+//	@SendTo("/topic/stocks")
+	@Scheduled(fixedRate = 3000)
 	public void retrieveData() throws Exception {
 		// if market is open, make fixed rate a constant defined at top. Else, only
 		// catch the data once until market opens

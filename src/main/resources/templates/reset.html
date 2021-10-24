@@ -3,91 +3,43 @@
 
 <head>
 
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport"
-	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="">
-<meta name="author" content="">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
 
 <title>Reset | NF</title>
 <link rel="stylesheet"
 	href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
 
-<!-- Custom fonts for this template-->
-<link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet"
-	type="text/css">
-	<link rel="stylesheet"
-		href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-	
-<!-- Custom styles for this template-->
-<link href="css/sb-admin.css" rel="stylesheet">
-<script type="text/javascript">
-var password = document.getElementById("password")
-, confirm_password = document.getElementById("confirmPassword");
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
 
-function validatePassword(){
-if(password.value != confirm_password.value) {
-  confirm_password.setCustomValidity("Passwords Don't Match");
-} else {
-  confirm_password.setCustomValidity('');
-}
-}
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin.css" rel="stylesheet">
 
-password.onchange = validatePassword;
-confirm_password.onkeyup = validatePassword;
-</script>
 </head>
 <body>
-<div class="form-gap"></div>
-	<div class="container"
-		style="display: flex; justify-content: center; align-items: center; height: 80vh">
-
-		<div class="panel panel-default">
-			<div class="panel-body">
-				<div class="text-center">
-					<h3>
-						<i class="fa fa-lock fa-4x"></i>
-					</h3>
-					<h2 class="text-center">Reset Password Form</h2>
-					<div class="panel-body">
-
-						<form id="register-form" th:action="@{/reset}" method="POST"
-							role="form" autocomplete="off" class="form" th:object="${user}"
-							 oninput='confirmPassword.setCustomValidity(password.value != confirmPassword.value ? "Passwords do not match." : "")'>
-
-							<div class="form-group">
-								<div class="input-group">
-									<span class="input-group-addon"><i
-										class="glyphicon glyphicon-envelope color-blue"></i></span> <input
-										id="password" name="password" th:field="*{password}"
-										placeholder="Password" class="form-control" type="password" required>
-								</div>
-							</div>
-							<div class="form-group">
-								<div class="input-group">
-									<span class="input-group-addon"><i
-										class="glyphicon glyphicon-envelope color-blue"></i></span> <input
-										type="password" name="confirmPassword" id="confirmPassword" class="form-control"
-										placeholder="Confirm password" required="required">
-								</div>
-							</div>
-							<div class="form-group">
-								<input name="recover-submit"
-									class="btn btn-lg btn-primary btn-block" value="Reset Password"
-									type="submit">
-							</div>
-							<input type="hidden" class="hide" name="token" id="token"
-								value="">
-						</form>
-						<h3 style="color: #343a40;" th:text="${emailSent}"></h3>
-
-					</div>
-				</div>
-
-			</div>
-		</div>
-	</div>
-
+  <div class="card-body">
+        <form action="#" th:action="@{/reset}" method="post" th:object="${user}">
+            <div class="form-row">
+              <div class="col-md-6">
+                <div class="form-label-group">
+                  <label for="inputPassword">Password</label>
+                  <input th:field="*{password}" type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required="required">
+                </div>
+              </div>
+              <!-- FIX CONFIRM PASS! -->
+              <div class="col-md-6">
+                <div class="form-label-group">
+                  <label for="confirmPassword">Confirm password</label>
+                  <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm password" required="required">
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" name="register">Reset</button>
+        </form>
 </body>
 </html>

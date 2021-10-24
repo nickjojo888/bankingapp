@@ -221,21 +221,19 @@ width-style {
 		</ul>
 
 		<ul class="navbar-nav ">
-
 			<!-- PROFILE DROPDOWN - scrolling off the page to the right -->
 			<li class="nav-item dropdown"><a th:text="${username}" href="#"
 				class="nav-link dropdown-toggle" id="navDropDownLink"
 				data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					Profile </a>
-
-
 				<div class="dropdown-menu" aria-labelledby="navDropDownLink">
-					<a class="dropdown-item" th:href="@{/banking/stocks/history}">History</a>
+					<a class="dropdown-item" th:href="@{/user/settings}">Settings</a>
 					<div class="dropdown-divider"></div>
 					<a class="dropdown-item" th:href="@{/logout}">Logout</a>
 				</div></li>
 
 		</ul>
+
 	</div>
 </nav>
 <body class="app">
@@ -298,7 +296,7 @@ width-style {
 </svg></button>
 					</form>
 				</div>
-			</div>
+</div>
 				<br>
 				<div id="stocklist" class="row">
 					<div class="col-md-12">
@@ -405,7 +403,6 @@ width-style {
 						<i class="fa fa-minus"></i>
 					</button>
 				</form>
-
 			</div>
 		</div>
 	</div>

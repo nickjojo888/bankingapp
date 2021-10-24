@@ -53,15 +53,30 @@ import com.nickjojo.banking.service.WithdrawServiceImpl;
 @EnableJpaRepositories(basePackages = { "com.nickjojo.banking.repository" })
 @EnableScheduling
 @EnableAsync
-public class BankingApplication extends WebMvcConfigurerAdapter implements SchedulingConfigurer {
+public class BankingApplication extends WebMvcConfigurerAdapter implements CommandLineRunner, SchedulingConfigurer {
+
+	/*
+	 * 1. Live stock chart on the stock page (not stock list page) 2. Live stock
+	 * prices on stock page ^
+	 */
+
+	@Autowired
+	private UserService userService;
+
+	private static final String[] CLASSPATH_RESOURCE_LOCATIONS = { "classpath:/META-INF/resources/",
+			"classpath:/resources/", "classpath:/static/", "classpath:/public/" };
 
 	public static void main(String[] args) {
 		SpringApplication.run(BankingApplication.class, args);
 	}
 
-	private static final String[] CLASSPATH_RESOURCE_LOCATIONS = { "classpath:/META-INF/resources/",
-			"classpath:/resources/", "classpath:/static/", "classpath:/public/" };
-	
+	@Override
+	public void run(String... args) throws Exception {
+
+		// userRepository.save(new User("nick", bCryptPasswordEncoder.encode("test123"),
+		// 1));
+
+	}
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -147,6 +162,7 @@ public class BankingApplication extends WebMvcConfigurerAdapter implements Sched
 		taskRegistrar.setScheduler(taskExecutor());
 
 	}
+ 
 
 	@Bean
 	public JavaMailSender getJavaMailSender() {

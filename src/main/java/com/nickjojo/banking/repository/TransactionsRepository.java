@@ -10,13 +10,15 @@ import com.nickjojo.banking.entity.Transaction;
 
 public interface TransactionsRepository extends JpaRepository<Transaction, Long> {
 
+	@Query(value = "SELECT * FROM transactions WHERE user_accountNumber = ?1 order by date asc", nativeQuery = true)
+	List<Transaction> findAllByUser_AccountNumber(String accountNumber);
+	
 	// Spring ORM will recognise the method name and will identify it as its own SQL query
 	// given return type, parameters and the keywords used in the method name
 	List<Transaction> findAllByUser_AccountNumberOrderByDateDesc(String accountNumber);
 	
-	@Query(value = "SELECT * FROM transactions WHERE user_accountNumber = ?1 order by date asc", nativeQuery = true)
-	List<Transaction> findAllByUser_AccountNumber(String accountNumber);
-
+	
+	// https://mail.codejava.net/frameworks/spring-boot/spring-data-jpa-filter-search-examples
 	@Query(value="SELECT * FROM transactions WHERE user_accountNumber = ?1 AND stockCode = ?2 order by date asc", nativeQuery=true)
 	List<Transaction> findAllByUser_AccountNumberAndStockCode(String accountNumber, String symbol) ;
 	

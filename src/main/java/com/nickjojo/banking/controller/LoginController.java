@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.nickjojo.banking.entity.Role;
 import com.nickjojo.banking.entity.User;
@@ -49,9 +48,7 @@ public class LoginController {
 	}
 
 	@PostMapping("/forgot-password")
-	public String forgotPassword(@ModelAttribute("user") User user, Model model, HttpServletRequest request, 
-			RedirectAttributes redirectAttributes) {
-		
+	public String forgotPassword(@ModelAttribute("user") User user, Model model, HttpServletRequest request) {
 		User theUser = userService.findByEmail(user.getEmail());
 
 		if (theUser == null) {
@@ -81,8 +78,6 @@ public class LoginController {
 					+ theUser.getResetToken() + " \n\nThis token will expire in 10 minutes.");
 
 			emailService.sendEmail(passwordResetEmail);
-
-			redirectAttributes.addFlashAttribute("emailSent", "Reset password email has been sent!");
 
 			model.addAttribute("successMessage", "A password reset link has been sent to your email!");
 		}
