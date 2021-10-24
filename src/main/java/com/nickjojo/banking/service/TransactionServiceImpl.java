@@ -36,7 +36,6 @@ public class TransactionServiceImpl implements TransactionService {
 	public double getVolume() {
 		List<Transaction> transactions = transactionRepository.findAll();
 		ChronoLocalDateTime<?> thisMonth = LocalDateTime.of(2020, 8, 1, 1, 1);
-		List<Transaction> thisMonthTransactions = new ArrayList<Transaction>();
 		double volume = 0;
 		for (Transaction t : transactions) {
 			if (t.getDate().isAfter(thisMonth)) {

@@ -46,7 +46,6 @@ public class Transaction {
 	@JsonFormat(pattern = "DD/MM/YYYY")
 	private LocalDateTime date;
 
-    
 
 	public Transaction() {
 

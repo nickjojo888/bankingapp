@@ -1,4 +1,4 @@
-package com.nickjojo.banking.entity;
+ package com.nickjojo.banking.entity;
 
 public class HistoricTransaction {
 

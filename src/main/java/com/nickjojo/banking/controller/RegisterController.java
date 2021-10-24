@@ -54,34 +54,37 @@ public class RegisterController {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setBalance(25000);
 		user.setEnabled(true);
-		user.setAccountNumber(generateAccountNumber());
+		user.setAccountNumber(generateAccountNumber(user.getFirstName(), user.getLastName()));
 		Set<Role> roles = new HashSet<>();
 		roles.add(roleService.findRoleByRole_Id((long) 1).get());
 		user.setRoles(roles);
 		userService.save(user);
 
 		// starting stocks
-		
+
 		for (String stockTicker : defaultStartingStocks) {
 			UserStockTicker userStock = new UserStockTicker(user, stockTicker);
 			userStocksService.save(userStock);
-		
+
 		}
 
 		model.addAttribute("successRegister", "Successfully registered using email: " + user.getEmail());
 
-		System.out.println(user.getAccountNumber() + " has just registered!");
+		System.out.println("\n" + user.getAccountNumber() + " has just registered!");
 		return "redirect:/login";
 	}
 
-	public String generateAccountNumber() {
+	public String generateAccountNumber(String first, String last) {
 
 		Random rand = new Random();
-		String card = "NJ";
+
+		String card = first.substring(0, 1) + last.substring(0, 1);
+
 		for (int i = 0; i < 14; i++) {
 			int n = rand.nextInt(10) + 0;
 			card += Integer.toString(n);
 		}
+
 		for (int i = 0; i < 16; i++) {
 			if (i % 4 == 0)
 				System.out.print(" ");
@@ -93,7 +96,7 @@ public class RegisterController {
 			if (u.getAccountNumber().equals(card)) {
 
 				// recursive algo if the acc num exists
-				generateAccountNumber();
+				generateAccountNumber(u.getFirstName(), u.getLastName());
 			}
 		}
 
