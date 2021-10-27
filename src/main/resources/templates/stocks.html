@@ -81,16 +81,18 @@ width-style {
 		stompClient = Stomp.over(socket);
 
 		stompClient.connect({}, function(frame) {
-			console.log("connected!!!")
+			console.log("connected!")
 
 			setConnected(true);
 			stompClient.subscribe('/topic/stocks', function(retrieveData) {
 				console.log('retrieving...');
-				display(retrieveData.body);
+				if(retrieveData.body != null) {
+					display(retrieveData.body);
+}
 			});
 
 		}, function(err) {
-			console.log('error occurred while connecting!!!')
+			console.log('error occurred while connecting!')
 		});
 	}
 

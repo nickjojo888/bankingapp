@@ -63,6 +63,14 @@ public class BankingController {
 	// only a list of the serializable stockdto class with the data which is
 	// necessary.
 	// connect automatically without connect button on stocks.html
+	
+	
+	// fix live connection on stocks page (default stocks come for split second)
+	// fix reset password if email doesnt exist
+	// fix daily returns (negative for day even if bought on dip)
+	// fix total portfolio value going down
+	
+	
 	@Autowired
 	private UserService userService;
 
@@ -127,7 +135,13 @@ public class BankingController {
 		for (Security s : securities) {
 
 			balance += s.getAmount();
+			
+			System.out.println("security amount is" + s.getAmount());
+
+			System.out.println("balance is " + balance);
+		
 		}
+		
 
 		double roundOff = (double) Math.round(balance * 100) / 100;
 		double todaysChange = todaysChange(user);
@@ -287,7 +301,7 @@ public class BankingController {
 
 		List<Security> usersSecurities = securityService.findAllByUser_AccountNumber(theUser.getAccountNumber());
 
-		if (marketOpen() == true) {
+//		if (marketOpen() == true) {
 			if (theUser.getBalance() >= security.getAmount()) {
 
 				if (usersSecurities.isEmpty() == false) {
@@ -325,7 +339,7 @@ public class BankingController {
 
 							securityService.delete(alreadyOwnSecurity);
 							Transaction transaction = new Transaction(theUser, symbol, TransactionType.STOCK_BUY,
-									security.getQuantity(),
+									security.getQuantity()-alreadyOwnSecurity.getQuantity(),
 									stockService.getStock(symbol).getQuote().getPrice().doubleValue(),
 									LocalDateTime.now());
 
@@ -340,7 +354,11 @@ public class BankingController {
 						securityService.save(security);
 
 					}
-					theUser.setBalance(theUser.getBalance() - security.getAmount());
+					if(alreadyOwnSecurity != null) {
+					theUser.setBalance(theUser.getBalance() - (security.getAmount()-alreadyOwnSecurity.getAmount())); 
+					} else {
+						theUser.setBalance(theUser.getBalance() - (security.getAmount()));
+					}
 					userService.save(theUser);
 					security.setUser(theUser);
 					securityService.save(security);
@@ -379,13 +397,13 @@ public class BankingController {
 						"You do not have enough money to buy this amount");
 				return new RedirectView("/banking/stocks/" + symbol);
 			}
-		} else {
-			DateTimeZone zone = DateTimeZone.forID("America/New_York");
-			DateTime dt = new DateTime(zone);
-			System.out.println("Stock market isn't open yet. Time is : " + dt.toDateTime());
-			redirectAttributes.addFlashAttribute("notOpen", "Stock market is not open!");
-			return new RedirectView("/banking/stocks/" + symbol);
-		}
+//		} else {
+//			DateTimeZone zone = DateTimeZone.forID("America/New_York");
+//			DateTime dt = new DateTime(zone);
+//			System.out.println("Stock market isn't open yet. Time is : " + dt.toDateTime());
+//			redirectAttributes.addFlashAttribute("notOpen", "Stock market is not open!");
+//			return new RedirectView("/banking/stocks/" + symbol);
+//		}
 		return new RedirectView("/banking/stocks/" + symbol);
 	}
 
@@ -568,9 +586,13 @@ public class BankingController {
 	public String stocks(Model model) throws NoSuchMethodException, IOException {
 
 		model.addAttribute("stock", new StockDto());
-
-		List<Stock> stocks = stockService.getDefaultStocks(getCurrentUser());
+try {
+	List<Stock> stocks = stockService.getDefaultStocks(getCurrentUser());
 		model.addAttribute("stocks", stocks);
+
+}catch(Exception e) {
+	System.out.println(e);
+}
 
 		return "stocks.html";
 	}
@@ -594,7 +616,7 @@ public class BankingController {
 	public String getSpecificTransactionHistory(Model model, @PathVariable("searchTerm") String searchTerm) {
 		List<UserDetails> users = getAllPrincipals();
 		Transaction t = (Transaction) model.getAttribute("transaction");
-		
+
 		for (UserDetails u : users) {
 			User user = userService.findByUsername(u.getUsername());
 			List<Transaction> transactions = transactionService

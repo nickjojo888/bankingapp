@@ -48,7 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.GET, "/admin/**").hasAnyRole("ADMIN")
 				.antMatchers("/banking/**").hasAnyRole("USER", "ADMIN").and().formLogin().loginPage("/login")
-				.permitAll().and().logout().permitAll().and().exceptionHandling().accessDeniedPage("/403");
+				.permitAll().defaultSuccessUrl("/banking").and().logout().permitAll().and().exceptionHandling().accessDeniedPage("/403");
 
 		http.sessionManagement().maximumSessions(1).sessionRegistry(sessionRegistry);
 	}
