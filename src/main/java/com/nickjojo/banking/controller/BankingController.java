@@ -3,6 +3,7 @@ package com.nickjojo.banking.controller;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,14 +64,12 @@ public class BankingController {
 	// only a list of the serializable stockdto class with the data which is
 	// necessary.
 	// connect automatically without connect button on stocks.html
-	
-	
+
 	// fix live connection on stocks page (default stocks come for split second)
 	// fix reset password if email doesnt exist
 	// fix daily returns (negative for day even if bought on dip)
-	// fix total portfolio value going down
-	
-	
+	// fix home page responsiveness
+
 	@Autowired
 	private UserService userService;
 
@@ -90,9 +89,6 @@ public class BankingController {
 	private TransactionService transactionService;
 
 	@Autowired
-	private RoleService roleService;
-
-	@Autowired
 	private SessionRegistry sessionRegistry;
 
 	@Autowired
@@ -100,9 +96,6 @@ public class BankingController {
 
 	@Autowired
 	private EmailService emailService;
-
-	private ScriptEngineManager manager = new ScriptEngineManager();
-	private ScriptEngine engine = manager.getEngineByName("JavaScript");
 
 	@Autowired
 	private SimpMessagingTemplate simpMessagingTemplate;
@@ -115,7 +108,6 @@ public class BankingController {
 
 	@GetMapping("/banking")
 	public String getIndex(Model model) throws IOException {
-//		stack.push("/banking");
 		User user = getCurrentUser();
 
 		// Stock Holdings:
@@ -135,15 +127,10 @@ public class BankingController {
 		for (Security s : securities) {
 
 			balance += s.getAmount();
-			
-			System.out.println("security amount is" + s.getAmount());
 
-			System.out.println("balance is " + balance);
-		
 		}
-		
 
-		double roundOff = (double) Math.round(balance * 100) / 100;
+		int roundOff = (int) Math.round(balance * 100) / 100;
 		double todaysChange = todaysChange(user);
 
 		model.addAttribute("totalValue", roundOff);
@@ -156,8 +143,6 @@ public class BankingController {
 		return "banking.html";
 	}
 
-//todo: for more accurate future change, create a check to see when the stock was purchased, and if it was purchased on this day
-// if it was, get the pricing for the stock at that time on this day
 	public double todaysChange(User user) throws IOException {
 
 		List<Security> userSecurities = securityService.findAllByUser_AccountNumber(user.getAccountNumber());
@@ -190,8 +175,7 @@ public class BankingController {
 	}
 
 	@GetMapping("/banking/withdraw")
-	public String getWithdraw(Model model) {
-//		stack.push("/banking/withdraw");
+	public String withdraw(Model model) {
 		User user = getCurrentUser();
 		model.addAttribute("username", user.getUsername());
 		Withdraw withdraw = new Withdraw();
@@ -200,7 +184,7 @@ public class BankingController {
 	}
 
 	@PostMapping("/banking/withdraw")
-	public String postWithdraw(@ModelAttribute("withdraw") Withdraw withdraw, Model model) {
+	public String withdraw(@ModelAttribute("withdraw") Withdraw withdraw, Model model) {
 		Optional<User> withdrawToUser = userService.findUserByAccountNumber(withdraw.getToNumber());
 		if (withdrawToUser.isPresent()) {
 			if (getCurrentUser().getBalance() >= withdraw.getAmount()) {
@@ -231,8 +215,6 @@ public class BankingController {
 
 	@GetMapping("/banking/deposit")
 	public String getDeposit(Model model) {
-//		stack.push("/banking/deposit");
-
 		model.addAttribute("deposit", new Deposit());
 		model.addAttribute("username", getCurrentUser().getUsername());
 		model.addAttribute("accountNumber", new String());
@@ -249,9 +231,7 @@ public class BankingController {
 	@PostMapping("/banking/deposit")
 	public String postDeposit(@ModelAttribute("deposit") Deposit deposit, Model model) {
 		Optional<User> tempUser = userService.findUserByAccountNumber(deposit.getAccountNumber());
-		System.out.println(deposit.getAccountNumber() + " IS ACC NUM");
 		if (deposit.getAmount() <= 0) {
-			System.out.println("deposit isn't a valid number");
 		} else {
 			if (tempUser.isPresent()) {
 				User user = tempUser.get();
@@ -269,8 +249,6 @@ public class BankingController {
 
 	@GetMapping("/banking/stocks/{symbol}")
 	public String getStock(Model model, @PathVariable("symbol") String symbol) throws IOException {
-//		stack.push("/banking/stocks/symbol");
-
 		Stock stock = stockService.getStock(symbol);
 		model.addAttribute("stock", stock);
 		model.addAttribute("security", new Security());
@@ -292,7 +270,6 @@ public class BankingController {
 			@ModelAttribute("security") Security security, RedirectAttributes redirectAttributes) throws IOException {
 
 		User theUser = this.getCurrentUser();
-		Security alreadyOwnSecurity = null;
 
 		security.setStockCode(symbol);
 
@@ -302,101 +279,89 @@ public class BankingController {
 		List<Security> usersSecurities = securityService.findAllByUser_AccountNumber(theUser.getAccountNumber());
 
 //		if (marketOpen() == true) {
-			if (theUser.getBalance() >= security.getAmount()) {
+		if (theUser.getBalance() >= security.getAmount()) {
 
-				if (usersSecurities.isEmpty() == false) {
+			if (usersSecurities.isEmpty() == false) {
 
-					for (Security s : usersSecurities) {
+				for (Security s : usersSecurities) {
 
-						System.out.println(s.getUser().getAccountNumber());
-
-						if (s.getStockCode().equals(symbol)) {
-							alreadyOwnSecurity = s;
-							security.setUser(theUser);
-
-							theUser.setBalance(theUser.getBalance() - security.getAmount());
-							userService.save(theUser);
-
-							// avg price calculation
-							System.out.println("Already own security avg: " + alreadyOwnSecurity.getAveragePrice());
-							System.out.println("new security avg: " + security.getAveragePrice());
-
-							double alreadyOwnAmount = alreadyOwnSecurity.getAveragePrice()
-									* alreadyOwnSecurity.getQuantity();
-							double newSecurityAmount = security.getAveragePrice() * security.getQuantity();
-							int newQuantity = alreadyOwnSecurity.getQuantity() + security.getQuantity();
-
-							double newPrice = (newSecurityAmount + alreadyOwnAmount) / newQuantity;
-
-							security.setQuantity(alreadyOwnSecurity.getQuantity() + security.getQuantity());
-							security.setAmount(
-									(double) Math.round((security.getAmount() + alreadyOwnSecurity.getAmount()) / 100)
-											* 100);
-							security.setAveragePrice((double) Math.round(newPrice * 100) / 100);
-							System.out.println(security.getAveragePrice());
-
-							securityService.save(security);
-
-							securityService.delete(alreadyOwnSecurity);
-							Transaction transaction = new Transaction(theUser, symbol, TransactionType.STOCK_BUY,
-									security.getQuantity()-alreadyOwnSecurity.getQuantity(),
-									stockService.getStock(symbol).getQuote().getPrice().doubleValue(),
-									LocalDateTime.now());
-
-							transactionService.save(transaction);
-						}
+					if (s.getStockCode().equals(symbol)) {
+						Security alreadyOwnSecurity = s;
+						int redirectQuantity = security.getQuantity();
+						double redirectAmount =  security.getAmount();
 						security.setUser(theUser);
 
-						// avg price
-						double price = security.getAmount() / security.getQuantity();
-						double securityRoundOff = (double) Math.round(price * 100) / 100;
-						security.setAveragePrice(securityRoundOff);
+						// here
+						double currBal = theUser.getBalance();
+						System.out.println("shares bought: " + security.getQuantity());
+						theUser.setBalance(currBal - (security.getAmount()));
+						System.out.println(currBal +",  " + theUser.getBalance());
+						userService.save(theUser);
+
+						double alreadyOwnAmount = alreadyOwnSecurity.getAveragePrice()
+								* alreadyOwnSecurity.getQuantity();
+						double newSecurityAmount = (Math.round((security.getAveragePrice() * security.getQuantity())*100)/100);
+						int newQuantity = alreadyOwnSecurity.getQuantity() + security.getQuantity();
+						double newAvgPrice = (newSecurityAmount + alreadyOwnAmount) / newQuantity;
+
+						security.setQuantity(newQuantity);
+						security.setAmount(security.getAmount() + alreadyOwnSecurity.getAmount());
+						security.setAveragePrice((100*newAvgPrice)/100);
+
 						securityService.save(security);
 
+						securityService.delete(alreadyOwnSecurity);
+
+						Transaction transaction = new Transaction(theUser, symbol, TransactionType.STOCK_BUY,
+								security.getQuantity() - alreadyOwnSecurity.getQuantity(),
+								stockService.getStock(symbol).getQuote().getPrice().doubleValue(), LocalDateTime.now());
+
+						transactionService.save(transaction);
+						redirectAttributes.addFlashAttribute("successfulBuy", "You have bought " + redirectQuantity
+						+ " shares of " + security.getStockCode() + " for $" + redirectAmount);
+						return new RedirectView("/banking/stocks/" + symbol);
 					}
-					if(alreadyOwnSecurity != null) {
-					theUser.setBalance(theUser.getBalance() - (security.getAmount()-alreadyOwnSecurity.getAmount())); 
-					} else {
-						theUser.setBalance(theUser.getBalance() - (security.getAmount()));
-					}
-					userService.save(theUser);
-					security.setUser(theUser);
-					securityService.save(security);
-
-				} else {
-
-					Security theSecurity = new Security(theUser, symbol, security.getQuantity(), security.getAmount());
-
-					// avg price
-					double price = theSecurity.getAmount() / theSecurity.getQuantity();
-					double securityRoundOff = (double) Math.round(price * 100) / 100;
-					theSecurity.setAveragePrice(securityRoundOff);
-					securityService.save(theSecurity);
-					theUser.setBalance(theUser.getBalance() - theSecurity.getAmount());
-
-					userService.save(theUser);
-
-					// error: the lag between the fetching of the security price/saving the
-					// transaction and the purchase price may pose some issues
-					// one solution is to save the price bought at inside the security or divide the
-					// amount by the quantity of shares to get purchase price
-					Transaction transaction = new Transaction(theUser, symbol, TransactionType.STOCK_BUY,
-							security.getQuantity(), stockService.getStock(symbol).getQuote().getPrice().doubleValue(),
-							LocalDateTime.now());
-
-					transactionService.save(transaction);
-
-					redirectAttributes.addFlashAttribute("successfulBuy", "You have bought " + security.getQuantity()
-							+ " shares of " + security.getStockCode() + " for $" + security.getAmount());
-					return new RedirectView("/banking/stocks/" + symbol);
-
-				}
-
+				} 
+				System.out.println("here");
+				theUser.setBalance(theUser.getBalance() - (security.getAmount()));
+				userService.save(theUser);
+				security.setUser(theUser);
+				security.setAveragePrice(security.getAmount()/security.getQuantity());
+				securityService.save(security);
+				redirectAttributes.addFlashAttribute("successfulBuy", "You have bought " + security.getQuantity()
+						+ " shares of " + security.getStockCode() + " for $" + security.getAmount());
+						return new RedirectView("/banking/stocks/" + symbol);
+				
 			} else {
-				redirectAttributes.addFlashAttribute("insufficientFunds",
-						"You do not have enough money to buy this amount");
+				Security theSecurity = new Security(theUser, symbol, security.getQuantity(), security.getAmount());
+
+				// avg price
+				double price = theSecurity.getAmount() / theSecurity.getQuantity();
+				double securityRoundOff = (double) Math.round(price * 100) / 100;
+				theSecurity.setAveragePrice(securityRoundOff);
+				securityService.save(theSecurity);
+
+				theUser.setBalance(theUser.getBalance() - theSecurity.getAmount());
+
+				userService.save(theUser);
+
+				Transaction transaction = new Transaction(theUser, symbol, TransactionType.STOCK_BUY,
+						security.getQuantity(), stockService.getStock(symbol).getQuote().getPrice().doubleValue(),
+						LocalDateTime.now());
+
+				transactionService.save(transaction);
+
+				redirectAttributes.addFlashAttribute("successfulBuy", "You have bought " + security.getQuantity()
+						+ " shares of " + security.getStockCode() + " for $" + security.getAmount());
 				return new RedirectView("/banking/stocks/" + symbol);
+
 			}
+
+		} else {
+			redirectAttributes.addFlashAttribute("insufficientFunds",
+					"You do not have enough money to buy this amount");
+			return new RedirectView("/banking/stocks/" + symbol);
+		}
 //		} else {
 //			DateTimeZone zone = DateTimeZone.forID("America/New_York");
 //			DateTime dt = new DateTime(zone);
@@ -404,7 +369,6 @@ public class BankingController {
 //			redirectAttributes.addFlashAttribute("notOpen", "Stock market is not open!");
 //			return new RedirectView("/banking/stocks/" + symbol);
 //		}
-		return new RedirectView("/banking/stocks/" + symbol);
 	}
 
 	@PostMapping("/banking/stock-search/sell/{symbol}")
@@ -412,7 +376,6 @@ public class BankingController {
 			@ModelAttribute("security") Security security, RedirectAttributes redirectAttributes) throws IOException {
 
 		User theUser = this.getCurrentUser();
-		Stock stock = this.stockService.getStock(symbol);
 		Security theSecurity = null;
 
 		if (securityService.findAllByUser_AccountNumber(theUser.getAccountNumber()) != null) {
@@ -433,47 +396,47 @@ public class BankingController {
 				redirectAttributes.addFlashAttribute("invalidAmount", "Amount exceeds current balance");
 				return new RedirectView("/banking/stocks/" + symbol);
 			} else {
-				if (marketOpen() == true) {
-					int newQuantity = theSecurity.getQuantity() - security.getQuantity();
-					theSecurity.setQuantity(newQuantity);
+//				if (marketOpen() == true) {
+				int newQuantity = theSecurity.getQuantity() - security.getQuantity();
+				theSecurity.setQuantity(newQuantity);
 
-					theSecurity
-							.setAmount((YahooFinance.get(theSecurity.getStockCode()).getQuote().getPrice().doubleValue()
-									* theSecurity.getQuantity()));
+				theSecurity.setAmount((YahooFinance.get(theSecurity.getStockCode()).getQuote().getPrice().doubleValue()
+						* theSecurity.getQuantity()));
 
-					if (newQuantity <= 0) {
-						securityService.deleteById(theSecurity.getId());
-						Transaction transaction = new Transaction(theUser, symbol, TransactionType.STOCK_SELL,
-								security.getQuantity(),
-								stockService.getStock(symbol).getQuote().getPrice().doubleValue(), LocalDateTime.now());
-
-						transactionService.save(transaction);
-					} else {
-						securityService.save(theSecurity);
-
-					}
-
-					theUser.setBalance(theUser.getBalance()
-							+ (YahooFinance.get(theSecurity.getStockCode()).getQuote().getPrice().doubleValue()
-									* (double) security.getQuantity()));
-
-					userService.save(theUser);
+				if (newQuantity <= 0) {
+					securityService.deleteById(theSecurity.getId());
 					Transaction transaction = new Transaction(theUser, symbol, TransactionType.STOCK_SELL,
 							security.getQuantity(), stockService.getStock(symbol).getQuote().getPrice().doubleValue(),
 							LocalDateTime.now());
 
 					transactionService.save(transaction);
-					redirectAttributes.addFlashAttribute("successSell", "Successfully sold " + theSecurity.getQuantity()
-							+ " shares of " + theSecurity.getStockCode());
-					return new RedirectView("/banking/stocks/" + symbol);
-
 				} else {
-					DateTimeZone zone = DateTimeZone.forID("America/New_York");
-					DateTime dt = new DateTime(zone);
-					System.out.println("Stock market isn't open yet. Time is : " + dt.toDateTime().toString());
-					redirectAttributes.addFlashAttribute("notOpen", "Stock market is not open!");
-					return new RedirectView("/banking/stocks/" + symbol);
+					securityService.save(theSecurity);
+
 				}
+
+				theUser.setBalance(theUser.getBalance()
+						+ (YahooFinance.get(theSecurity.getStockCode()).getQuote().getPrice().doubleValue()
+								* (double) security.getQuantity()));
+
+				userService.save(theUser);
+				Transaction transaction = new Transaction(theUser, symbol, TransactionType.STOCK_SELL,
+						security.getQuantity(), stockService.getStock(symbol).getQuote().getPrice().doubleValue(),
+						LocalDateTime.now());
+
+				transactionService.save(transaction);
+				redirectAttributes.addFlashAttribute("successSell",
+						"Successfully sold " + transaction.getQuantity() + " shares of " + theSecurity.getStockCode());
+				return new RedirectView("/banking/stocks/" + symbol);
+
+//				} else {
+//					DateTimeZone zone = DateTimeZone.forID("America/New_York");
+//					DateTime dt = new DateTime(zone);
+//					System.out.println("Stock market isn't open yet. Time is : " + dt.toDateTime().toString());
+//					redirectAttributes.addFlashAttribute("notOpen", "Stock market is not open!");
+//					return new RedirectView("/banking/stocks/" + symbol);
+//				}
+//			}
 			}
 		}
 
@@ -498,34 +461,30 @@ public class BankingController {
 		User user = this.getCurrentUser();
 		UserStockTicker stockTicker = new UserStockTicker(user, ticker);
 		List<UserStockTicker> userStocks = userStocksService.findAllByUser_AccountNumber(user.getAccountNumber());
-
 		for (UserStockTicker userStockTicker : userStocks) {
 			if (userStockTicker.getTicker().equals(stockTicker.getTicker())) {
 				System.out.println(userStockTicker.getTicker() + " " + stockTicker.getTicker());
 				userStocksService.remove(stockTicker);
-				System.out.println("removed stock!");
 				return "redirect:/banking/stocks";
 
 			}
 		}
-		System.out.println("error occurred, user does not have this stock");
-
 		return "redirect:/banking/stocks";
 	}
 
 	@PostMapping("/banking/stocks/addUserStockTicker/{ticker}")
 	public String addUserStockTicker(Model model, @PathVariable("ticker") String ticker) {
+
 		User user = this.getCurrentUser();
 		UserStockTicker stockTicker = new UserStockTicker(user, ticker);
 		List<UserStockTicker> userStocks = userStocksService.findAllByUser_AccountNumber(user.getAccountNumber());
 
 		for (UserStockTicker userStockTicker : userStocks) {
 			if (userStockTicker.getTicker().equals(stockTicker.getTicker())) {
-				System.out.println("stock already in watchlist");
 				return "redirect:/banking/stocks";
 			}
 		}
-		System.out.println("stock, " + stockTicker.getTicker() + ", added to watchlist");
+
 		userStocksService.save(stockTicker);
 		return "redirect:/banking/stocks";
 
@@ -586,13 +545,13 @@ public class BankingController {
 	public String stocks(Model model) throws NoSuchMethodException, IOException {
 
 		model.addAttribute("stock", new StockDto());
-try {
-	List<Stock> stocks = stockService.getDefaultStocks(getCurrentUser());
-		model.addAttribute("stocks", stocks);
+		try {
+			List<Stock> stocks = stockService.getDefaultStocks(getCurrentUser());
+			model.addAttribute("stocks", stocks);
 
-}catch(Exception e) {
-	System.out.println(e);
-}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return "stocks.html";
 	}
@@ -615,7 +574,6 @@ try {
 	@PostMapping("/banking/stocks/history/search/{searchTerm}")
 	public String getSpecificTransactionHistory(Model model, @PathVariable("searchTerm") String searchTerm) {
 		List<UserDetails> users = getAllPrincipals();
-		Transaction t = (Transaction) model.getAttribute("transaction");
 
 		for (UserDetails u : users) {
 			User user = userService.findByUsername(u.getUsername());
@@ -658,11 +616,8 @@ try {
 	}
 
 	@MessageMapping("/stocks")
-//	@SendTo("/topic/stocks")
 	@Scheduled(fixedRate = 3000)
 	public void retrieveData() throws Exception {
-		// if market is open, make fixed rate a constant defined at top. Else, only
-		// catch the data once until market opens
 		List<UserDetails> principals = getAllPrincipals();
 
 		for (UserDetails u : principals) {

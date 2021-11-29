@@ -55,23 +55,11 @@ width-style {
 	width: 20px;
 }
 </style>
-
-
-<!-- <script th:src="@{/js/app.js}" type="text/javascript"></script>-->
-
-<!-- <script
-	src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
- -->
-<!-- Custom styles for this template-->
-
 <script type="text/javascript">
-	// if market open, connect automatically, if it isnt open, hide connect
 	var stompClient = null;
 	window.onload = connect();
 
-	// window.onload = checkMarketOpen();
 	function checkMarketOpen() {
-		// if/else for time to check if market is open
 		connect();
 	}
 
@@ -174,24 +162,6 @@ width-style {
 				stockBody.append(row);
 			}
 			table.append(stockBody);
-
-			/* 	$.each(stockList, function(i, element) {
-					var row = $('<tr>').text(element.price)
-					table.append(row);
-
-			}); */
-
-			/*var stockList = JSON.parse(message).getStocks;
-			 var table = document.createElement('table');
-			var tableBody = document.getElementById('stockBody');
-
-			for (var i = 0; i < stockList.length; i++) {
-				var tr = document.createElement('tr');
-				for (var j = 0; j < 4; j++) {
-					var td = document.createElement("td");
-					td.innerHTML = stockList.get(i).getPrice();
-				}
-			}*/
 		}
 	}
 </script>

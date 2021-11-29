@@ -1,5 +1,6 @@
 package com.nickjojo.banking;
 
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -29,6 +30,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.nickjojo.banking.controller.BankingController;
+import com.nickjojo.banking.entity.UserDetailsServiceImpl;
 import com.nickjojo.banking.service.DepositService;
 import com.nickjojo.banking.service.DepositServiceImpl;
 import com.nickjojo.banking.service.EmailService;
@@ -55,27 +57,11 @@ import com.nickjojo.banking.service.WithdrawServiceImpl;
 @EnableAsync
 public class BankingApplication extends WebMvcConfigurerAdapter implements CommandLineRunner, SchedulingConfigurer {
 
-	/*
-	 * 1. Live stock chart on the stock page (not stock list page) 2. Live stock
-	 * prices on stock page ^
-	 */
-
-	@Autowired
-	private UserService userService;
-
 	private static final String[] CLASSPATH_RESOURCE_LOCATIONS = { "classpath:/META-INF/resources/",
 			"classpath:/resources/", "classpath:/static/", "classpath:/public/" };
 
 	public static void main(String[] args) {
 		SpringApplication.run(BankingApplication.class, args);
-	}
-
-	@Override
-	public void run(String... args) throws Exception {
-
-		// userRepository.save(new User("nick", bCryptPasswordEncoder.encode("test123"),
-		// 1));
-
 	}
 
 	@Override
@@ -85,7 +71,7 @@ public class BankingApplication extends WebMvcConfigurerAdapter implements Comma
 
 	@Bean
 	public UserDetailsService getUserDetails() {
-		return new com.nickjojo.banking.entity.UserDetailsServiceImpl();
+		return new UserDetailsServiceImpl();
 	}
 
 	@Bean
@@ -182,5 +168,14 @@ public class BankingApplication extends WebMvcConfigurerAdapter implements Comma
 
 		return mailSender;
 	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+
 
 }

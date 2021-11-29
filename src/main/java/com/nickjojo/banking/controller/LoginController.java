@@ -104,17 +104,12 @@ public class LoginController {
 	@PostMapping("/reset")
 	public String setResetPassword(Model model, @ModelAttribute("user") User user, HttpServletRequest request,
 			HttpSession session) {
-
-//		HttpSession session = request.getSession();
-//		String token = (String) request.getParameter("userToken");
-
 		String token = session.getAttribute("userToken").toString();
 		System.out.println(session.getAttribute("userToken").toString() + " IS THE TOKEN!");
 
 		Optional<User> theUser = userService.findByResetToken(token);
 
 		if (theUser.isPresent()) {
-			System.out.println("USER PRESENT!");
 			User realUser = theUser.get();
 
 			String timeStamp = new SimpleDateFormat("dd.HH.mm").format(new Date());
