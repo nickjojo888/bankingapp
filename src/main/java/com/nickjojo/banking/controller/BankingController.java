@@ -58,17 +58,7 @@ import yahoofinance.YahooFinance;
 @Controller()
 public class BankingController {
 
-	// in stocks page , put the original html inside the stockbody, but upon
-	// connect() method, clear it.
-	// too much data being transmitted, make it so that the StockTransfer class is
-	// only a list of the serializable stockdto class with the data which is
-	// necessary.
-	// connect automatically without connect button on stocks.html
-
-	// fix live connection on stocks page (default stocks come for split second)
-	// fix reset password if email doesnt exist
-	// fix daily returns (negative for day even if bought on dip)
-	// fix home page responsiveness
+	// fix login/register (error if login doesn't work, error if password isn't at least 8 alphanumeric characters, or error of password doesn't match)
 
 	@Autowired
 	private UserService userService;
@@ -116,7 +106,6 @@ public class BankingController {
 		// User Details
 		model.addAttribute("username", user.getUsername());
 		model.addAttribute("roles", user.getRoles());
-
 		model.addAttribute("userFirstName", user.getFirstName());
 		model.addAttribute("userLastName", user.getLastName());
 		model.addAttribute("userBalance", user.getBalance());
@@ -124,10 +113,11 @@ public class BankingController {
 
 		// User - Total Portfolio Value
 		double balance = user.getBalance();
+		
 		for (Security s : securities) {
 
 			balance += s.getAmount();
-
+			s.setAmount((double) s.getQuantity()* Double.valueOf(YahooFinance.get(s.getStockCode()).getQuote().getPrice().toString()));
 		}
 
 		int roundOff = (int) Math.round(balance * 100) / 100;
@@ -135,6 +125,7 @@ public class BankingController {
 
 		model.addAttribute("totalValue", roundOff);
 		model.addAttribute("securities", securities);
+		
 		model.addAttribute("todaysChange", Math.round(todaysChange));
 
 		double todaysChangePercent = ((todaysChange / (roundOff - todaysChange)) * 100);
@@ -298,15 +289,13 @@ public class BankingController {
 						System.out.println(currBal +",  " + theUser.getBalance());
 						userService.save(theUser);
 
-						double alreadyOwnAmount = alreadyOwnSecurity.getAveragePrice()
-								* alreadyOwnSecurity.getQuantity();
-						double newSecurityAmount = (Math.round((security.getAveragePrice() * security.getQuantity())*100)/100);
+						double newAmount = alreadyOwnSecurity.getAmount() + security.getAmount();
 						int newQuantity = alreadyOwnSecurity.getQuantity() + security.getQuantity();
-						double newAvgPrice = (newSecurityAmount + alreadyOwnAmount) / newQuantity;
-
+						
+		
 						security.setQuantity(newQuantity);
-						security.setAmount(security.getAmount() + alreadyOwnSecurity.getAmount());
-						security.setAveragePrice((100*newAvgPrice)/100);
+						security.setAmount(newAmount);
+						security.setAveragePrice(Math.round((newAmount/newQuantity) * 100.0)/100.0);
 
 						securityService.save(security);
 
@@ -393,7 +382,11 @@ public class BankingController {
 
 			if ((security.getAmount() > theSecurity.getAmount())) {
 
-				redirectAttributes.addFlashAttribute("invalidAmount", "Amount exceeds current balance");
+				redirectAttributes.addFlashAttribute("invalidAmount", "Quantity exceeds current holding quantity.");
+				return new RedirectView("/banking/stocks/" + symbol);
+			} 
+			if(security.getAmount() <=0 ) {
+				redirectAttributes.addFlashAttribute("invalidAmount", "Sell quantity is less than or equal to 0.");
 				return new RedirectView("/banking/stocks/" + symbol);
 			} else {
 //				if (marketOpen() == true) {
@@ -521,7 +514,7 @@ public class BankingController {
 		if (principal instanceof UserDetails) {
 			return userService.findByUsername(((UserDetails) principal).getUsername());
 
-		}
+		}         
 		System.out.println("No user logged in");
 		return null;
 	}
@@ -638,7 +631,7 @@ public class BankingController {
 	}
 
 	@MessageMapping("/stocks/{name}")
-	@Scheduled(fixedDelay = 3000)
+	@Scheduled(fixedDelay = 1000)
 	public void stockData() throws Exception {
 		List<UserDetails> principals = getAllPrincipals();
 		for (UserDetails u : principals) {

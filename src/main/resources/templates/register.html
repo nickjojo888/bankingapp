@@ -63,15 +63,22 @@
               </div>
               <!-- FIX CONFIRM PASS! -->
               <div class="col-md-6">
-                  <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm password" required="required">
+                  <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-control" placeholder="Confirm password" required="required">
               </div>
+                     	<div style="color: red" th:if="${lengthRegister}" th:text="${lengthRegister}"></div>
+                                   	<div style="color: red" th:if="${passwordRegister}" th:text="${passwordRegister}"></div>
+              
             </div>
+            
           </div>
           <button type="submit" class="btn btn-primary btn-block" name="register">Register</button>
         </form>
+       	<div style="color: red" th:if="${errorRegister}" th:text="${errorRegister}"></div>
+               	<div style="color: green" th:if="${successRegister}" th:text="${successRegister}"></div>
+        
         <div class="text-center">
-          <a class="d-block small mt-3" href="login.html">Login Page</a>
-          <a class="d-block small" href="forgot-password.html">Forgot Password?</a>
+          <a class="d-block small mt-3" th:href="@{/login}">Login Page</a>
+          <a class="d-block small" href="@{/forgot-password}">Forgot Password?</a>
         </div>
       </div>
     </div>

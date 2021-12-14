@@ -12,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.nickjojo.banking.entity.Role;
 import com.nickjojo.banking.entity.User;
@@ -46,10 +48,17 @@ public class RegisterController {
 	}
 
 	@PostMapping("/register")
-	public String register(Model model, @ModelAttribute("user") User user) {
+	public RedirectView register(Model model, @ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
 		if ((userService.findByUsername(user.getUsername()) != null)) {
-			model.addAttribute("errorRegister", "User already exists with that username or email!");
-			return "redirect:/register";
+			
+			redirectAttributes.addFlashAttribute("errorRegister", "\nUser already exists with that username or email!\n");
+					return new RedirectView("/register");
+		} else if(user.getPassword().length() < 8) {
+			redirectAttributes.addFlashAttribute("lengthRegister", "\nPassword has to be of minimum length: 8\n");
+			return new RedirectView("/register");
+		} else if(!user.getConfirmPassword().equals(user.getPassword())) {
+			redirectAttributes.addFlashAttribute("passwordRegister", "\n'Password' and 'Confirm Password' do not match.\n");
+			return new RedirectView("/register");
 		}
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setBalance(25000);
@@ -63,9 +72,10 @@ public class RegisterController {
 			UserStockTicker userStock = new UserStockTicker(user, stockTicker);
 			userStocksService.save(userStock);
 		}
-		model.addAttribute("successRegister", "Successfully registered using email: " + user.getEmail());
 		System.out.println(user.getAccountNumber() + " has just registered!");
-		return "redirect:/login";
+		redirectAttributes.addFlashAttribute("successRegister", "Successfully registered using email: " + user.getEmail());
+
+		return new RedirectView("/register");
 	}
 
 	public String generateAccountNumber(String firstName, String lastName) {

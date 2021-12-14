@@ -64,6 +64,8 @@ public class User implements Serializable {
 
 	@Column(name = "timestamp")
 	private String timeStamp;
+	
+	private String confirmPassword;
 
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -90,6 +92,14 @@ public class User implements Serializable {
 		return firstName;
 	}
 
+	public String getConfirmPassword() {
+		return confirmPassword;
+	}
+	
+	public void setConfirmPassword(String confirmPassword) {
+		this.confirmPassword = confirmPassword;
+	}
+	
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
